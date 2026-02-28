@@ -10,6 +10,7 @@ Future<void> main() async {
   await GetStorage.init();
   final box = GetStorage();
   final String? storedRole = box.read<String>('user_role');
+  final String storedThemeMode = box.read<String>('theme_mode') ?? 'system';
 
   String initialRoute = AppPages.initial;
   if (storedRole == 'worker') {
@@ -18,13 +19,20 @@ Future<void> main() async {
     initialRoute = Routes.clientHome;
   }
 
-  runApp(ZolverApp(initialRoute: initialRoute));
+  final ThemeMode themeMode = switch (storedThemeMode) {
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
+
+  runApp(ZolverApp(initialRoute: initialRoute, themeMode: themeMode));
 }
 
 class ZolverApp extends StatelessWidget {
   final String initialRoute;
+  final ThemeMode themeMode;
 
-  const ZolverApp({super.key, required this.initialRoute});
+  const ZolverApp({super.key, required this.initialRoute, required this.themeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +40,8 @@ class ZolverApp extends StatelessWidget {
       title: 'Zolver',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeMode,
       initialRoute: initialRoute,
       getPages: AppPages.routes,
     );
